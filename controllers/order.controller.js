@@ -1,10 +1,14 @@
 import Order from '../models/order.model.js';
 import Product from '../models/product.model.js';
 import AppError from '../utils/AppError.js';
+import { getIO } from '../config/socket.js';
+
 
 export const createOrder = async (req, res) => {
   const { productId, quantity } = req.body;
-
+  
+  const io = getIO();
+  
   // find product
   const product = await Product.findById(productId);
   if (!product) throw new AppError('Product not found', 404);
@@ -28,6 +32,11 @@ export const createOrder = async (req, res) => {
     quantity,
     totalAmount,
     status: 'pending',
+  });
+
+  io.to(product.seller.toString()).emit("new_order", {
+    orderId: order._id,
+    product: product.title,
   });
 
   res.status(201).json({

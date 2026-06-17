@@ -1,6 +1,6 @@
 import Product from "../models/product.model.js";
+import { getIO } from "../config/socket.js";
 import AppError from "../utils/AppError.js";
-
 import uploadToCloudinary from '../utils/uploadToCloudinary.js'
 
 export const createProduct = async(req,res)=>{
@@ -33,6 +33,13 @@ export const createProduct = async(req,res)=>{
     res.status(201).json({
         success:true,
         data:newProduct
+    });
+
+    const io = getIO();
+
+    io.emit("new_product", {
+      message: "New product added",
+      product,
     });
 }
 

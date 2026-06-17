@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import http from 'http'
 import { connectDb } from "./mongodb/connect.js";
 import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js';
@@ -13,6 +14,7 @@ import orderRoutes from './routes/order.route.js';
 import errorHandler from "./middlewares/errorHandler.js";
 import cookieParser from 'cookie-parser';
 import { apiLimiter } from './middlewares/rateLimitter.js';
+import { initSocket } from './config/socket.js';
 
 dotenv.config();
 
@@ -25,6 +27,9 @@ app.use(morgan("dev"));
 app.use(cookieParser())
 app.use(apiLimiter) //rate limitter
 
+const server = http.createServer(app);
+
+initSocket(server)
 
 
 app.use("/api/v1/auth",authRoutes);
@@ -42,7 +47,7 @@ const port = process.env.PORT || 5000
 
 
 
-app.listen(port,async()=>{
+server.listen(port,async()=>{
     
     console.log(`server running on http://localhost:${port}`);
 
